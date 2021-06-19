@@ -1,0 +1,60 @@
+const esbuild = require('esbuild');
+const utils = require('./utils');
+
+const buildPlugin = () => ({
+  name: 'buildPlugin',
+  setup(build) {
+    build.onLoad({ filter: /\.(js|ts|tsx)$/ }, async (args) => {
+      const raw = await utils.input(args.path);
+
+      const code = utils.stripStyleImport(raw);
+
+      if (utils.isJSX(args.path)) {
+        const runtime = utils.resolveRuntime(args.path);
+
+        return {
+          contents: `import { createScopedElement } from "${runtime}";\n${code}`,
+          loader: 'tsx'
+        };
+      } else {
+        return {
+          contents: code,
+          loader: 'ts'
+        };
+      }
+    });
+  }
+});
+
+const callbackPlugin = (cb) => ({
+  name: 'callbackPlugin',
+  setup(build) {
+    build.onEnd(cb);
+  }
+});
+
+const buildFromEntry = async (entryPoints) => {
+  return new Promise((resolve) => {
+    esbuild.build({
+      entryPoints,
+      sourcemap: false,
+      bundle: false,
+      write: false,
+      outdir: './dist/esnext',
+      format: 'esm',
+      target: 'es2020', // esnext не всегда генерирует валидный код
+      resolveExtensions: ['.tsx', '.ts', '.js'],
+      minify: false,
+      jsxFactory: 'createScopedElement',
+      jsxFragment: 'createScopedElement.Fragment',
+      plugins: [
+        buildPlugin(),
+        callbackPlugin(resolve)
+      ]
+    });
+  });
+};
+
+module.exports = {
+  buildFromEntry
+};

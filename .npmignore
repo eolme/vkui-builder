@@ -1,0 +1,10 @@
+node_modules/
+*.lock
+*-lock.json
+*.log
+.DS_Store
+.editorconfig
+.eslintignore
+.eslintrc
+tsconfig.json
+
