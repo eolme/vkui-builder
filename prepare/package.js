@@ -1,10 +1,7 @@
 const utils = require('../build/utils');
 const path = require('path');
 const semver = require('semver');
-const child = require('child_process');
-const util = require('util');
-
-const exec = util.promisify(child.exec);
+const cross = require('cross-spawn');
 
 const readPackage = async (packagePath) => {
   return JSON.parse(await utils.input(packagePath));
@@ -18,9 +15,8 @@ const matchLatestVersion = async (dep, range) => {
   const major = range.split('||').map((version) => version.match(/\d+/)[0]);
   const max = `${Math.max.apply(Math, major)}.x.x`;
 
-  const output = await exec(`yarn info ${dep} versions --json`);
-  const raw = output.stdout.toString();
-  const info = JSON.parse(raw);
+  const output = cross.sync('yarn', ['info', dep, 'versions', '--json'], { encoding: 'utf8' });
+  const info = JSON.parse(output.stdout);
 
   for (let i = info.data.length; i--;) {
     const version = info.data[i];

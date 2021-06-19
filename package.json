@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@mntm/eslint-config": "^0.2.0",
+    "@types/cross-spawn": "^6.0.2",
     "@types/node": "^15.12.4",
     "eslint": "^7.29.0"
   },
@@ -19,6 +20,7 @@
     "@babel/plugin-transform-runtime": "^7.14.5",
     "@babel/preset-env": "^7.14.5",
     "autoprefixer": "^10.2.6",
+    "cross-spawn": "^7.0.3",
     "esbuild": "^0.12.9",
     "extract-zip": "^2.0.1",
     "fast-glob": "^3.2.5",

@@ -1,6 +1,7 @@
 const git = require('../prepare/git');
 const child = require('child_process');
 const isCI = require('is-ci');
+const cross = require('cross-spawn');
 
 const js = require.resolve('./build-js');
 const css = require.resolve('./build-css');
@@ -34,6 +35,6 @@ const run = async (modulePath) => {
 
   if (isCI) {
     console.log('CI/CD detected.');
-    child.spawnSync('yarn publish --non-interactive --access=public', { stdio: 'inherit' });
+    cross.sync('yarn', ['publish', '--non-interactive', '--access=public'], { stdio: 'inherit' });
   }
 })();
