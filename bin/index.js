@@ -34,6 +34,6 @@ const run = async (modulePath) => {
 
   if (isCI) {
     console.log('CI/CD detected.');
-    child.spawnSync('yarn publish --non-interactive');
+    child.spawnSync('yarn publish --non-interactive', { stdio: 'inherit' });
   }
 })();
