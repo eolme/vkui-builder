@@ -37,7 +37,7 @@ const rewrite = async () => {
     './dist'
   ];
 
-  pkg.sideEffects = pkg.sideEffects.filter((side) => side.includes('index.js'));
+  pkg.sideEffects = pkg.sideEffects.filter((side) => !side.includes('index.js'));
   pkg.sideEffects.push('./dist/esnext/lib/polyfills.js');
 
   pkg.peerDependencies = Object.assign({}, pkg.dependencies, pkg.peerDependencies);
