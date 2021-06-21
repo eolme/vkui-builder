@@ -3,11 +3,35 @@ const babel = require('@babel/core');
 const babelPresetEnv = require.resolve('@babel/preset-env');
 const babelPluginRuntime = require.resolve('@babel/plugin-transform-runtime');
 
+const assumptions = {
+  arrayLikeIsIterable: true,
+  constantReexports: false,
+  constantSuper: true,
+  enumerableModuleMeta: false,
+  ignoreFunctionLength: true,
+  ignoreToPrimitiveHint: true,
+  iterableIsArray: true,
+  mutableTemplateObject: true,
+  noClassCalls: true,
+  noDocumentAll: true,
+  noNewArrows: true,
+  objectRestNoSymbols: true,
+  privateFieldsAsProperties: true,
+  pureGetters: false,
+  setClassMethods: true,
+  setComputedProperties: true,
+  setPublicClassFields: true,
+  setSpreadProperties: true,
+  skipForOfIteratorClosing: true,
+  superIsCallableConstructor: true
+};
+
 const buildESM = async (code, ast) => {
   return babel.transformFromAstAsync(ast, code, {
     ast: false,
     babelrc: false,
     configFile: false,
+    assumptions,
     presets: [
       [babelPresetEnv, {
         modules: false,
@@ -34,6 +58,7 @@ const buildCJS = async (code, ast) => {
     ast: false,
     babelrc: false,
     configFile: false,
+    assumptions,
     presets: [
       [babelPresetEnv, {
         modules: 'cjs',
