@@ -13,7 +13,7 @@ const buildPlugin = () => ({
         const runtime = utils.resolveRuntime(args.path);
 
         return {
-          contents: `import { createScopedElement } from "${runtime}";\n${code}`,
+          contents: `import{createScopedElement}from"${runtime}";${code}`,
           loader: 'tsx'
         };
       } else {
@@ -44,7 +44,8 @@ const buildFromEntry = async (entryPoints) => {
       format: 'esm',
       target: 'es2020', // esnext не всегда генерирует валидный код
       resolveExtensions: ['.tsx', '.ts', '.js'],
-      minify: false,
+      minifySyntax: true,
+      minifyWhitespace: true,
       jsxFactory: 'createScopedElement',
       jsxFragment: 'createScopedElement.Fragment',
       plugins: [
