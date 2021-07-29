@@ -49,9 +49,13 @@ const rewrite = async () => {
     })
   );
 
+  pkg.main = './dist/cjs/index.js';
+  pkg.module = './dist/index.js';
+
   pkg.modern = './dist/esnext/index.js';
   pkg.jsnext = './dist/esnext/index.js';
   pkg.esnext = './dist/esnext/index.js';
+  pkg.exports = './dist/esnext/index.js';
 
   pkg.name = '@mntm/vkui';
   pkg.description = pkg.description + ' built with vkui-builder';
