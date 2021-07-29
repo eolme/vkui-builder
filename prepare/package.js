@@ -49,13 +49,23 @@ const rewrite = async () => {
     })
   );
 
+  // es5+cjs
   pkg.main = './dist/cjs/index.js';
+
+  // es5+esm
   pkg.module = './dist/index.js';
 
-  pkg.modern = './dist/esnext/index.js';
+  // main esnext+esm
   pkg.jsnext = './dist/esnext/index.js';
-  pkg.esnext = './dist/esnext/index.js';
+  pkg['jsnext:main'] = './dist/esnext/index.js';
+
+  // new esnext+esm
   pkg.exports = './dist/esnext/index.js';
+
+  // other esnext+esm
+  pkg.esm = './dist/esnext/index.js';
+  pkg.esnext = './dist/esnext/index.js';
+  pkg.modern = './dist/esnext/index.js';
 
   pkg.name = '@mntm/vkui';
   pkg.description = pkg.description + ' built with vkui-builder';
