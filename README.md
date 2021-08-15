@@ -10,12 +10,28 @@ Enhanced component library builder.
 - New esnext target
 - Backwards compatible
 
+## Prebuilt package
+
+The prebuilt package is published in npm along with the release of the original package using GitHub Actions.
+
+We recommend to use [yarn](https://classic.yarnpkg.com/en/docs/install/) for dependency management:
+
+```shell
+yarn add @mntm/vkui
+```
+
 ## Installation
 
 We recommend to use [yarn](https://classic.yarnpkg.com/en/docs/install/) for dependency management:
 
 ```shell
 yarn add @mntm/vkui-builder
+```
+
+After installing you can build your version locally:
+
+```shell
+yarn run vkui-builder
 ```
 
 ## License
