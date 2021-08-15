@@ -1,8 +1,25 @@
 {
-  "name": "vkui-builder",
+  "name": "@mntm/vkui-builder",
   "version": "1.2.0",
-  "main": "./bin/index.js",
+  "author": {
+    "name": "Anton Petrov",
+    "email": "im@petrov.engineer",
+    "url": "https://petrov.engineer"
+  },
+  "description": "Enhanced component library builder.",
   "license": "MIT",
+  "keywords": [
+    "vkui",
+    "uikit",
+    "vkontakte"
+  ],
+  "homepage": "https://github.com/maxi-team/vkui-builder",
+  "bugs": "https://github.com/maxi-team/vkui-builder",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxi-team/vkui-builder.git"
+  },
+  "main": "./bin/index.js",
   "scripts": {
     "build": "node ./bin/index.js"
   },
