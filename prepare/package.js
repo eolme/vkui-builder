@@ -20,8 +20,9 @@ const matchLatestVersion = async (dep, range) => {
 
   for (let i = info.data.length; i--;) {
     const version = info.data[i];
+
     if (semver.satisfies(version, max)) {
-      return '^' + version;
+      return `^${version}`;
     }
   }
 
@@ -49,32 +50,50 @@ const rewrite = async () => {
     })
   );
 
-  // es5+cjs
-  pkg.main = './dist/cjs/index.js';
+  const BLANK = undefined;
 
-  // es5+esm
-  pkg.module = './dist/index.js';
+  const cjs = './dist/cjs/index.js';
+  const esm = './dist/esnext/index.js';
+  const cmn = './dist/index.js';
 
-  // main esnext+esm
-  pkg.jsnext = './dist/esnext/index.js';
-  pkg['jsnext:main'] = './dist/esnext/index.js';
+  // Remove high-priority
+  pkg.browser = BLANK;
 
-  // new esnext+esm
-  pkg.exports = './dist/esnext/index.js';
+  // Remove pre-bundled
+  pkg.umd = BLANK;
+  pkg['umd:main'] = BLANK;
+  pkg.unpkg = BLANK;
+  pkg.jsdelivr = BLANK;
 
-  // other esnext+esm
-  pkg.esm = './dist/esnext/index.js';
-  pkg.esnext = './dist/esnext/index.js';
-  pkg.modern = './dist/esnext/index.js';
+  // Es5+cjs
+  pkg.main = cjs;
+
+  // Es5+esm
+  pkg.module = cmn;
+
+  // Main esnext+esm
+  pkg.jsnext = esm;
+  pkg['jsnext:main'] = esm;
+
+  // New esnext+esm
+  pkg.exports = esm;
+
+  // Other esnext+esm
+  pkg.esm = esm;
+  pkg.esnext = esm;
+  pkg.modern = esm;
+
+  // Ts
+  pkg.typings = './dist/index.d.ts';
 
   pkg.name = '@mntm/vkui';
-  pkg.description = pkg.description + ' built with vkui-builder';
+  pkg.description += ' built with vkui-builder';
 
-  pkg.dependencies = undefined;
-  pkg.devDependencies = undefined;
-  pkg.bin = undefined;
-  pkg['size-limit'] = undefined;
-  pkg.scripts = undefined;
+  pkg.dependencies = BLANK;
+  pkg.devDependencies = BLANK;
+  pkg.bin = BLANK;
+  pkg['size-limit'] = BLANK;
+  pkg.scripts = BLANK;
 
   await writePackage(packagePath, pkg);
 };

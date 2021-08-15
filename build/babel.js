@@ -61,8 +61,12 @@ const buildESM = async (code, ast) => {
         modules: false,
         useBuiltIns: false,
         corejs: false,
-        bugfixes: true, // auto-fix
-        loose: true // генерирует более быстрый код
+
+        // Auto-fix
+        bugfixes: true,
+
+        // Генерирует более быстрый код
+        loose: true
       }]
     ],
     plugins: [
@@ -85,8 +89,12 @@ const buildCJS = async (code, ast) => {
         modules: 'cjs',
         useBuiltIns: false,
         corejs: false,
-        bugfixes: true, // auto-fix
-        loose: true // генерирует более быстрый код
+
+        // Auto-fix
+        bugfixes: true,
+
+        // Генерирует более быстрый код
+        loose: true
       }]
     ],
     plugins: [
@@ -109,6 +117,7 @@ const parseCode = async (code) => {
 
 const buildFromCode = async (code) => {
   const ast = await parseCode(code);
+
   return Promise.all([
     buildESM(code, ast),
     buildCJS(code, ast)

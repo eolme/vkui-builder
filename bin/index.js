@@ -9,12 +9,13 @@ const info = require.resolve('./rewrite-info');
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log('Unhandled Rejection at:', promise, 'reason:', reason);
-  throw reason;
+  process.exit(1);
 });
 
 const run = async (modulePath) => {
   return new Promise((resolve) => {
     const proc = child.fork(modulePath, { stdio: 'inherit' });
+
     proc.on('exit', resolve);
   });
 };

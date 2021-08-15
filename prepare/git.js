@@ -19,6 +19,7 @@ const downloadFile = async (url, dirPath) => {
     const filePath = path.resolve(dirPath, fileName);
     const file = stream.createWriteStream(filePath);
     const request = https.get(fileURL, (response) => response.pipe(file));
+
     file.on('finish', () => {
       resolve(filePath);
     });
@@ -33,9 +34,10 @@ const createTemp = async () => {
 const fetchMaster = async () => {
   const dirPath = await createTemp();
   const filePath = await downloadFile(GIT_ENDPOINT, dirPath);
+
   await unpackFile(filePath, dirPath);
-  const unpackPath = path.resolve(dirPath, GIT_NAME);
-  return unpackPath;
+
+  return path.resolve(dirPath, GIT_NAME);
 };
 
 module.exports = {

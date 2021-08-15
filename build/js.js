@@ -16,9 +16,11 @@ const entry = async () => fg([
 
 const buildSource = async (entryPoints) => {
   const esbuildResult = await esbuild.buildFromEntry(entryPoints);
+
   return Promise.all(
     esbuildResult.outputFiles.map(async (file) => {
       const [es5, cjs] = await babel.buildFromCode(file.text);
+
       return utils.outputAll(file.path, file.text, es5.code, cjs.code);
     })
   );

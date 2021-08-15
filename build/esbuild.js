@@ -16,12 +16,12 @@ const buildPlugin = () => ({
           contents: `import{createScopedElement}from"${runtime}";${code}`,
           loader: 'tsx'
         };
-      } else {
-        return {
-          contents: code,
-          loader: 'ts'
-        };
       }
+
+      return {
+        contents: code,
+        loader: 'ts'
+      };
     });
   }
 });
@@ -42,7 +42,9 @@ const buildFromEntry = async (entryPoints) => {
       write: false,
       outdir: './dist/esnext',
       format: 'esm',
-      target: 'es2020', // esnext не всегда генерирует валидный код
+
+      // Esnext не всегда генерирует валидный код
+      target: 'es2020',
       resolveExtensions: ['.tsx', '.ts', '.js'],
       minifySyntax: true,
       minifyWhitespace: true,

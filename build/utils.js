@@ -28,8 +28,8 @@ const input = async (filePath) => {
 const runtimePath = path.resolve(process.cwd(), './src/lib/jsxRuntime');
 const resolveRuntime = (filePath) => {
   const relative = path.relative(path.dirname(filePath), runtimePath);
-  const relativePath = relative.startsWith('.') ? relative : './' + relative;
-  return relativePath;
+
+  return relative.startsWith('.') ? relative : `./${relative}`;
 };
 
 const isJSX = (filePath) => {
@@ -37,7 +37,7 @@ const isJSX = (filePath) => {
 };
 
 const stripStyleImport = (text) => {
-  return text.replace(/^(import|require)[\s\w-{}()*.,'"/\\]+?\.css.*$/gm, '');
+  return text.replace(/^(import|require)[\s\w-{"'()*,./\\}]+?\.css.*$/gm, '');
 };
 
 module.exports = {

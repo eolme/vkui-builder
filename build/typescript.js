@@ -10,13 +10,13 @@ const emit = async (entryPoints) => {
 
   try {
     await fs.unlink(configPath);
-  } catch (e) {
-    // suppress
+  } catch {
+    // Suppress
   }
 
   const config = tsc.parseJsonConfigFileContent({
     compilerOptions: {
-      // speed up
+      // Speed up
       allowUnreachableCode: true,
       disableSizeLimit: true,
       importsNotUsedAsValues: 'preserve',
@@ -32,7 +32,7 @@ const emit = async (entryPoints) => {
       ],
       moduleResolution: 'node',
 
-      // modules
+      // Modules
       allowSyntheticDefaultImports: true,
       esModuleInterop: true,
       allowUmdGlobalAccess: true,
@@ -46,13 +46,13 @@ const emit = async (entryPoints) => {
       baseUrl: './src',
       outDir: './dist/esnext',
 
-      // patch @types
+      // Patch @types
       typeRoots: [
         typesPath
       ],
       paths: {
         '*': [
-          typesPath + '/*',
+          `${typesPath}/*`,
           '*'
         ]
       }
