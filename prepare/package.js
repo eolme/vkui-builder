@@ -65,6 +65,10 @@ const rewrite = async () => {
   pkg.unpkg = BLANK;
   pkg.jsdelivr = BLANK;
 
+  // Remove new resolve
+  pkg.imports = BLANK;
+  pkg.exports = BLANK;
+
   // Es5+cjs
   pkg.main = cjs;
 
@@ -75,9 +79,6 @@ const rewrite = async () => {
   pkg.jsnext = esm;
   pkg['jsnext:main'] = esm;
 
-  // New esnext+esm
-  pkg.exports = esm;
-
   // Other esnext+esm
   pkg.esm = esm;
   pkg.esnext = esm;
@@ -87,7 +88,7 @@ const rewrite = async () => {
   pkg.typings = './dist/index.d.ts';
 
   pkg.name = '@mntm/vkui';
-  pkg.description += ' built with vkui-builder';
+  pkg.description += ' built with @mntm/vkui-builder';
 
   pkg.dependencies = BLANK;
   pkg.devDependencies = BLANK;
