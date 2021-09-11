@@ -1,10 +1,18 @@
 const utils = require('../build/utils');
 const path = require('path');
 
+const readme = `# @mntm/vkui
+
+[VKUI](https://npm.im/@vkontakte/vkui) built with [@mntm/vkui-builder](https://npm.im/@mnmt/vkui-builder)
+
+Documentation: https://vkcom.github.io/VKUI/
+Changelog: https://github.com/VKCOM/VKUI/releases
+`;
+
 const rewrite = async () => {
   const readmePath = path.resolve(process.cwd(), 'README.md');
 
-  await utils.output(readmePath, `# @mntm/vkui\n\n[VKUI](https://npm.im/@vkontakte/vkui) собранный с помощью [vkui-builder](https://npm.im/@mnmt/vkui-builder)`);
+  await utils.output(readmePath, readme);
 };
 
 module.exports = {

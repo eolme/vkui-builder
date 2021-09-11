@@ -20,6 +20,21 @@ We recommend to use [yarn](https://classic.yarnpkg.com/en/docs/install/) for dep
 yarn add @mntm/vkui
 ```
 
+## Non-standard
+
+Importing styles:
+
+```css
+@import '@mntm/vkui/dist/styles/themes.css';
+@import '@mntm/vkui/dist/styles/components.css';
+```
+
+Importing internal modules:
+
+```ts
+import { setRef } '@mntm/vkui/dist/esnext/lib/utils';
+```
+
 ## Installation
 
 We recommend to use [yarn](https://classic.yarnpkg.com/en/docs/install/) for dependency management:
