@@ -38,7 +38,19 @@ const rewrite = async () => {
     './dist'
   ];
 
-  pkg.sideEffects = pkg.sideEffects.filter((side) => !side.includes('index.js'));
+  pkg.sideEffects = pkg.sideEffects.filter((side) => {
+    // Entry
+    if (side.includes('index')) {
+      return false;
+    }
+
+    // Experimental
+    if (side.includes('cssm')) {
+      return false;
+    }
+
+    return true;
+  });
   pkg.sideEffects.push('./dist/esnext/lib/polyfills.js');
 
   pkg.peerDependencies = Object.assign({}, pkg.dependencies, pkg.peerDependencies);
@@ -92,9 +104,13 @@ const rewrite = async () => {
 
   pkg.dependencies = BLANK;
   pkg.devDependencies = BLANK;
+  pkg.resolutions = BLANK;
+
   pkg.bin = BLANK;
-  pkg['size-limit'] = BLANK;
   pkg.scripts = BLANK;
+
+  pkg['size-limit'] = BLANK;
+  pkg['pre-commit'] = BLANK;
 
   await writePackage(packagePath, pkg);
 };
