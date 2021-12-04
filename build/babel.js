@@ -1,3 +1,5 @@
+const utils = require('./utils');
+
 const babel = require('@babel/core');
 
 const babelPresetEnv = require.resolve('@babel/preset-env');
@@ -34,7 +36,7 @@ const base = {
   sourceMaps: false,
   inputSourceMap: false,
   sourceType: 'module',
-  comments: false
+  shouldPrintComment: utils.isPure
 };
 
 const targets = {

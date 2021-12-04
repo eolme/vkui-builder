@@ -40,11 +40,21 @@ const stripStyleImport = (text) => {
   return text.replace(/^(import|require)[\s\w-{"'()*,./\\}]+?\.css.*$/gm, '');
 };
 
+const markPure = (text) => {
+  return text.replace(/(?:console\.(?:log|warn|error)|warn|warnOnce)\(/g, '/*#__PURE__*/$&');
+};
+
+const isPure = (text) => {
+  return text.includes('__PURE__');
+};
+
 module.exports = {
   input,
   output,
   outputAll,
   resolveRuntime,
   isJSX,
-  stripStyleImport
+  stripStyleImport,
+  markPure,
+  isPure
 };

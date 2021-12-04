@@ -19,9 +19,11 @@ const buildSource = async (entryPoints) => {
 
   return Promise.all(
     esbuildResult.outputFiles.map(async (file) => {
-      const [es5, cjs] = await babel.buildFromCode(file.text);
+      const pure = utils.markPure(file.text);
 
-      return utils.outputAll(file.path, file.text, es5.code, cjs.code);
+      const [es5, cjs] = await babel.buildFromCode(pure);
+
+      return utils.outputAll(file.path, pure, es5.code, cjs.code);
     })
   );
 };
