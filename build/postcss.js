@@ -6,7 +6,7 @@ const path = require('path');
 const importPlugin = require('postcss-import');
 const customPropertiesPlugin = require('postcss-custom-properties');
 const autoprefixerPlugin = require('autoprefixer');
-const selectorPlugin = require('postcss-prefixer');
+const selectorPlugin = require('postcss-modules');
 
 const plugins = require('./plugins');
 
@@ -30,8 +30,10 @@ const postcssPlugin = () => {
     }),
     autoprefixerPlugin(),
     selectorPlugin({
-      prefix: 'vkui',
-      ignore: [/^\.vkui/, '#mount']
+      generateScopedName: (name) => name.startsWith('vkui') || name === 'mount' ? name : `vkui${name}`,
+      getJSON() {
+        // Noop
+      }
     })
   ]);
 
