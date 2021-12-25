@@ -70,6 +70,10 @@ const buildFromEntry = async (entryPoints) => {
       outdir: './dist/',
       resolveExtensions: ['.css'],
       minify: true,
+      loader: {
+        '.woff': 'file',
+        '.woff2': 'file'
+      },
       plugins: [
         postcssPlugin(),
         callbackPlugin(resolve)
