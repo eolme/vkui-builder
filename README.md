@@ -1,4 +1,4 @@
-# @mntm/vkui-builder [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/maxi-team/vkui-builder/blob/master/LICENSE) 
+# @mntm/vkui-builder [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/maxi-team/vkui-builder/blob/master/LICENSE) [![build](https://github.com/mntm-lib/vkui-builder/actions/workflows/build.yml/badge.svg)](https://github.com/mntm-lib/vkui-builder/actions/workflows/build.yml)
 
 **Docs:** RU | EN
 
