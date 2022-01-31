@@ -61,13 +61,19 @@ const emit = async (entryPoints) => {
     files: entryPoints
   }, tsc.sys, basePath);
 
+  const sync = utils.syncPromise();
+
   tsc.createProgram({
     options: config.options,
     rootNames: config.fileNames,
     configFileParsingDiagnostics: config.errors
   }).emit(undefined, (filePath, code) => {
-    utils.outputAll(filePath, code, code, code);
+    const pure = utils.stripStyleImport(code);
+
+    utils.outputAll(filePath, pure, pure, pure).then(sync.resolve, sync.reject);
   }, undefined, true);
+
+  return sync.promise;
 };
 
 module.exports = {

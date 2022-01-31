@@ -5,6 +5,29 @@ const babel = require('@babel/core');
 const babelPresetEnv = require.resolve('@babel/preset-env');
 const babelPluginRuntime = require.resolve('@babel/plugin-transform-runtime');
 
+// Slowdown symbol polyfills
+const EXCLUDE_SYMBOL = [
+  'transform-typeof-symbol'
+];
+
+// Slowdown regex polyfills
+const EXCLUDE_REGEX = [
+  'transform-unicode-regex',
+  'transform-sticky-regex',
+  'proposal-unicode-property-regex',
+  'transform-named-capturing-groups-regex',
+  'transform-dotall-regex'
+];
+
+const EXCLUDE_SLOW = [].concat(EXCLUDE_SYMBOL, EXCLUDE_REGEX);
+
+// Force transform reserved
+const INCLUDE_LEGACY = [
+  'transform-member-expression-literals',
+  'transform-property-literals',
+  'transform-reserved-words'
+];
+
 const assumptions = {
   arrayLikeIsIterable: true,
   constantReexports: false,
@@ -68,7 +91,9 @@ const buildESM = async (code, ast) => {
         bugfixes: true,
 
         // Генерирует более быстрый код
-        loose: true
+        loose: true,
+
+        exclude: EXCLUDE_SLOW
       }]
     ],
     plugins: [
@@ -96,7 +121,10 @@ const buildCJS = async (code, ast) => {
         bugfixes: true,
 
         // Генерирует более быстрый код
-        loose: true
+        loose: true,
+
+        exclude: EXCLUDE_SLOW,
+        include: INCLUDE_LEGACY
       }]
     ],
     plugins: [

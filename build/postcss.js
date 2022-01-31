@@ -25,7 +25,7 @@ const postcssPlugin = () => {
       preserve: true
     }),
     plugins.scopeRootPlugin({
-      customPropRoot: '.vkui__root, .vkui__portal-root',
+      customPropRoot: '.vkui__root,.vkui__portal-root',
       except: defaultSchemePath
     }),
     autoprefixerPlugin(),
