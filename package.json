@@ -1,6 +1,6 @@
 {
   "name": "@mntm/vkui-builder",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "author": {
     "name": "Anton Petrov",
     "email": "im@petrov.engineer",
@@ -30,24 +30,20 @@
     "node": "^16"
   },
   "devDependencies": {
-    "@mntm/eslint-config": "^1.0.0",
-    "@types/babel__core": "^7.1.18",
+    "@mntm/eslint-config": "^1.1.0",
     "@types/cross-spawn": "^6.0.2",
-    "@types/node": "^17.0.13",
-    "eslint": "^8.8.0"
+    "@types/node": "^17.0.18",
+    "eslint": "^8.9.0"
   },
   "dependencies": {
-    "@babel/core": "^7.16.12",
-    "@babel/plugin-transform-runtime": "^7.16.10",
-    "@babel/preset-env": "^7.16.11",
-    "@types/react": "^17.0.38",
-    "autoprefixer": "^10.4.2",
+    "@types/react": "^17.0.39",
+    "@vkontakte/vkui-tokens": "*",
     "cross-spawn": "^7.0.3",
-    "esbuild": "^0.14.14",
+    "esbuild": "^0.14.22",
     "extract-zip": "^2.0.1",
     "fast-glob": "^3.2.11",
     "is-ci": "^3.0.1",
-    "postcss": "^8.4.5",
+    "postcss": "^8.4.6",
     "postcss-custom-properties": "^12.1.4",
     "postcss-import": "^14.0.2",
     "postcss-modules": "^4.3.0",

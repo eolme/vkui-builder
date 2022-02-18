@@ -6,7 +6,6 @@ const buildPlugin = () => ({
   setup(build) {
     build.onLoad({ filter: /\.(js|ts|tsx)$/ }, async (args) => {
       const raw = await utils.input(args.path);
-
       const code = utils.stripStyleImport(raw);
 
       if (utils.isJSX(args.path)) {
@@ -26,36 +25,42 @@ const buildPlugin = () => ({
   }
 });
 
-const callbackPlugin = (cb) => ({
-  name: 'callbackPlugin',
-  setup(build) {
-    build.onEnd(cb);
-  }
+const createConfig = (entryPoints, platform) => ({
+  entryPoints,
+  bundle: false,
+  write: false,
+  outdir: platform === 'node' ? './dist/node/' : './dist/',
+  format: platform === 'node' ? 'cjs' : 'esm',
+  target: platform === 'node' ? 'node12' : 'es2017',
+  platform: platform === 'node' ? 'node' : 'neutral',
+  sourcemap: 'external',
+  resolveExtensions: ['.tsx', '.ts', '.js'],
+  minifySyntax: true,
+  minifyWhitespace: true,
+  jsxFactory: 'createScopedElement',
+  jsxFragment: 'createScopedElement.Fragment',
+  plugins: [
+    buildPlugin()
+  ]
 });
 
-const buildFromEntry = async (entryPoints) => {
-  return new Promise((resolve) => {
-    esbuild.build({
-      entryPoints,
-      sourcemap: false,
-      bundle: false,
-      write: false,
-      outdir: './dist/esnext',
-      format: 'esm',
+const build = async (entryPoints, platform) => {
+  const result = await esbuild.build(createConfig(entryPoints, platform));
 
-      // Esnext не всегда генерирует валидный код
-      target: 'es2020',
-      resolveExtensions: ['.tsx', '.ts', '.js'],
-      minifySyntax: true,
-      minifyWhitespace: true,
-      jsxFactory: 'createScopedElement',
-      jsxFragment: 'createScopedElement.Fragment',
-      plugins: [
-        buildPlugin(),
-        callbackPlugin(resolve)
-      ]
-    });
-  });
+  return Promise.all(
+    result.outputFiles.map(async (file) => {
+      const pure = utils.markPure(file.text);
+
+      return utils.output(file.path, pure);
+    })
+  );
+};
+
+const buildFromEntry = async (entryPoints) => {
+  return Promise.all([
+    build(entryPoints, 'browser'),
+    build(entryPoints, 'node')
+  ]);
 };
 
 module.exports = {

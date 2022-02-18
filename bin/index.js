@@ -13,10 +13,17 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const run = async (modulePath) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const proc = child.fork(modulePath, { stdio: 'inherit' });
 
-    proc.on('exit', resolve);
+    proc.on('error', reject);
+    proc.on('exit', (code, signal) => {
+      if (code !== 0) {
+        reject(new Error(signal || code));
+      } else {
+        resolve();
+      }
+    });
   });
 };
 

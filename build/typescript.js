@@ -44,7 +44,7 @@ const emit = async (entryPoints) => {
       emitDeclarationOnly: true,
 
       baseUrl: './src',
-      outDir: './dist/esnext',
+      outDir: './dist',
 
       // Patch @types
       typeRoots: [
@@ -70,7 +70,7 @@ const emit = async (entryPoints) => {
   }).emit(undefined, (filePath, code) => {
     const pure = utils.stripStyleImport(code);
 
-    utils.outputAll(filePath, pure, pure, pure).then(sync.resolve, sync.reject);
+    utils.outputAll(filePath, pure, pure).then(sync.resolve, sync.reject);
   }, undefined, true);
 
   return sync.promise;

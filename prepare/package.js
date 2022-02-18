@@ -1,7 +1,6 @@
 const utils = require('../build/utils');
 const path = require('path');
 const semver = require('semver');
-const cross = require('cross-spawn');
 
 const readPackage = async (packagePath) => {
   return JSON.parse(await utils.input(packagePath));
@@ -15,8 +14,8 @@ const matchLatestVersion = async (dep, range) => {
   const major = range.split('||').map((version) => version.match(/\d+/)[0]);
   const max = `${Math.max.apply(Math, major)}.x.x`;
 
-  const output = cross.sync('yarn', ['info', dep, 'versions', '--json'], { encoding: 'utf8' });
-  const info = JSON.parse(output.stdout);
+  const output = await utils.spawn('yarn', ['info', dep, 'versions', '--json'], { encoding: 'utf8' });
+  const info = JSON.parse(output);
 
   for (let i = info.data.length; i--;) {
     const version = info.data[i];
@@ -38,63 +37,53 @@ const rewrite = async () => {
     './dist'
   ];
 
-  pkg.sideEffects = pkg.sideEffects.filter((side) => {
-    // Entry
-    if (side.includes('index')) {
-      return false;
-    }
-
-    // Experimental
-    if (side.includes('cssm')) {
-      return false;
-    }
-
-    return true;
-  });
-  pkg.sideEffects.push('./dist/esnext/lib/polyfills.js');
+  pkg.sideEffects = [
+    '*.css'
+  ];
 
   pkg.peerDependencies = Object.assign({}, pkg.dependencies, pkg.peerDependencies);
   pkg.peerDependenciesMeta = {};
   await Promise.all(
     Object.keys(pkg.peerDependencies).map(async (dep) => {
+      if (dep.includes('babel')) {
+        pkg.peerDependencies[dep] = utils.BLANK;
+
+        return;
+      }
+
       pkg.peerDependenciesMeta[dep] = { optional: false };
       pkg.peerDependencies[dep] = await matchLatestVersion(dep, pkg.peerDependencies[dep]);
     })
   );
 
-  const BLANK = undefined;
-
-  const cjs = './dist/cjs/index.js';
-  const esm = './dist/esnext/index.js';
-  const cmn = './dist/index.js';
+  const cjs = './dist/node/index.js';
+  const esm = './dist/index.js';
 
   // Remove high-priority
-  pkg.browser = BLANK;
+  pkg.browser = utils.BLANK;
 
   // Remove pre-bundled
-  pkg.umd = BLANK;
-  pkg['umd:main'] = BLANK;
-  pkg.unpkg = BLANK;
-  pkg.jsdelivr = BLANK;
+  pkg.umd = utils.BLANK;
+  pkg['umd:main'] = utils.BLANK;
+  pkg.unpkg = utils.BLANK;
+  pkg.jsdelivr = utils.BLANK;
+
+  // Remove non-standard
+  pkg.jsnext = utils.BLANK;
+  pkg['jsnext:main'] = utils.BLANK;
+  pkg.esm = utils.BLANK;
+  pkg.esnext = utils.BLANK;
+  pkg.modern = utils.BLANK;
 
   // Remove new resolve
-  pkg.imports = BLANK;
-  pkg.exports = BLANK;
+  pkg.imports = utils.BLANK;
+  pkg.exports = utils.BLANK;
 
-  // Es5+cjs
+  // Target node12
   pkg.main = cjs;
 
-  // Es5+esm
-  pkg.module = cmn;
-
-  // Main esnext+esm
-  pkg.jsnext = esm;
-  pkg['jsnext:main'] = esm;
-
-  // Other esnext+esm
-  pkg.esm = esm;
-  pkg.esnext = esm;
-  pkg.modern = esm;
+  // Target es2017
+  pkg.module = esm;
 
   // Ts
   pkg.typings = './dist/index.d.ts';
@@ -102,15 +91,16 @@ const rewrite = async () => {
   pkg.name = '@mntm/vkui';
   pkg.description += ' built with @mntm/vkui-builder';
 
-  pkg.dependencies = BLANK;
-  pkg.devDependencies = BLANK;
-  pkg.resolutions = BLANK;
+  pkg.dependencies = utils.BLANK;
+  pkg.devDependencies = utils.BLANK;
+  pkg.resolutions = utils.BLANK;
 
-  pkg.bin = BLANK;
-  pkg.scripts = BLANK;
+  pkg.bin = utils.BLANK;
+  pkg.scripts = utils.BLANK;
 
-  pkg['size-limit'] = BLANK;
-  pkg['pre-commit'] = BLANK;
+  pkg['size-limit'] = utils.BLANK;
+  pkg['pre-commit'] = utils.BLANK;
+  pkg['lint-staged'] = utils.BLANK;
 
   await writePackage(packagePath, pkg);
 };

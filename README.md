@@ -6,9 +6,11 @@ Enhanced component library builder.
 
 ## Differences
 
-- Fastest build with esbuild and tuned babel
-- New esnext target
-- Backwards compatible
+- ES2017 for esm modules
+- node12 for cjs modules
+- Unprefixed css
+- Minified source
+- Faster load
 
 ## Prebuilt package
 
@@ -20,7 +22,7 @@ We recommend to use [yarn](https://classic.yarnpkg.com/en/docs/install/) for dep
 yarn add @mntm/vkui
 ```
 
-## Non-standard
+## Getting started
 
 Importing styles:
 
@@ -29,10 +31,10 @@ Importing styles:
 @import '@mntm/vkui/dist/styles/components.css';
 ```
 
-Importing internal modules:
+Individual CommonJS modules exported from `/dist/node`, for example:
 
-```ts
-import { setRef } '@mntm/vkui/dist/esnext/lib/utils';
+```js
+const Alert = require('@mntm/vkui/dist/node/components/Alert');
 ```
 
 ## Installation
