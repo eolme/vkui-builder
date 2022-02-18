@@ -58,7 +58,7 @@ const postcssPlugin = () => ({
       })
     ]);
 
-    build.onLoad({ filter: /.css$/ }, async (file) => {
+    build.onLoad({ filter: /\.css$/ }, async (file) => {
       const raw = await utils.input(file.path);
       const pure = utils.stripRelativeNodeModules(raw);
       const contents = await processor.process(pure, { from: file.path });

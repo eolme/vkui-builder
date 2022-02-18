@@ -6,7 +6,7 @@ Enhanced component library builder.
 
 ## Differences
 
-- ES2017 for esm modules
+- ES2018 for esm modules
 - node12 for cjs modules
 - Unprefixed css
 - Minified source

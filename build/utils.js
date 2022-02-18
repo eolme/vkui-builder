@@ -44,7 +44,11 @@ const isJSX = (filePath) => {
 };
 
 const stripStyleImport = (text) => {
-  return text.replace(/^(import|require)[\s\w-{"'()*,./\\}]+?\.css.*$/gm, '');
+  return text.replace(/^\s*import\s*["']\S+\.css["'];?$/gm, '');
+};
+
+const stripPolyfills = (text) => {
+  return text.replace(/^\s*import\s*["']\S*(?:@babel|core-js|polyfill)\S*["'];?$/gm, '');
 };
 
 const stripRelativeNodeModules = (text) => {
@@ -53,6 +57,57 @@ const stripRelativeNodeModules = (text) => {
 
 const markPure = (text) => {
   return text.replace(/(?:console\.(?:log|warn|error)|warn|warnOnce)\(/g, '/*#__PURE__*/$&');
+};
+
+const optimizeClassNames = (text) => {
+  if (!text.includes('classNames')) {
+    return text;
+  }
+
+  return text.replace(/^\s*import\s*{\s*(\w+)(?:,\s*(\w+))?\s*}\s*from\s*(["'])\S*classNames\S*["'];?$/gm, ($0, $1, $2, $3) => {
+    const multi = $2 ? `, default as ${$2}` : '';
+
+    return `import { default as ${$1}${multi} } from ${$3}clsx${$3}`;
+  });
+};
+
+const optimizeRender = (text) => {
+  if (!text.includes('createScopedElement')) {
+    return text;
+  }
+
+  return `
+${text}
+
+const _uppercase = /(^|\\s)([A-Z])/g;
+const _prefix = (str) => str.replace(uppercase, '$1vkui$2');
+const _prop = 'vkuiClass';
+let _prefixed = '';
+let _name = '';
+let _class = '';
+let _next = null;
+let _props = null;
+export function h() {
+  _props = arguments[1];
+  if (props !== null && _prop in _props) {
+    _class = _props.className;
+    _prefixed = _prefix(_props[_prop]);
+    _props.className =
+      _class !== null && _class !== undefined ?
+      _prefixed + ' ' + _class :
+      _prefixed;
+    _next = {};
+    for (_name in _props) {
+      if (_name !== _prop) {
+        _next[_name] = _props[_name];
+      }
+    }
+    arguments[1] = _next;
+  }
+  return React.createElement.apply(null, arguments);
+}
+export const Fragment = React.Fragment;
+`;
 };
 
 const syncPromise = () => {
@@ -99,8 +154,17 @@ const spawn = async (command, args, options) => {
   return sync.promise;
 };
 
+const chain = (start, callbacks) => {
+  callbacks.forEach((fn) => {
+    start = fn(start);
+  });
+
+  return start;
+};
+
 module.exports = {
   BLANK,
+  chain,
   spawn,
   input,
   output,
@@ -110,6 +174,9 @@ module.exports = {
   isJSX,
   stripStyleImport,
   stripRelativeNodeModules,
+  stripPolyfills,
+  optimizeClassNames,
+  optimizeRender,
   markPure,
   syncPromise
 };

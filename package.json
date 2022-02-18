@@ -1,6 +1,7 @@
 {
   "name": "@mntm/vkui-builder",
   "version": "2.0.0",
+  "type": "commonjs",
   "author": {
     "name": "Anton Petrov",
     "email": "im@petrov.engineer",

@@ -7,7 +7,7 @@ const entry = async () => fg([
   './src/**/*.{tsx,ts,js}'
 ], {
   ignore: [
-    './src/**/*.{e2e,test,spec}.{tsx,ts,js}',
+    './src/**/*.{e2e,test,spec,polyfill}.{tsx,ts,js}',
     './src/**/__tests__/**/*',
     './src/testing/**/*'
   ]

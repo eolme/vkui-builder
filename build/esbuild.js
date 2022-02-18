@@ -4,15 +4,21 @@ const utils = require('./utils');
 const buildPlugin = () => ({
   name: 'buildPlugin',
   setup(build) {
-    build.onLoad({ filter: /\.(js|ts|tsx)$/ }, async (args) => {
+    build.onLoad({ filter: /\.(js|ts)x?$/ }, async (args) => {
       const raw = await utils.input(args.path);
-      const code = utils.stripStyleImport(raw);
+
+      const code = utils.chain(raw, [
+        utils.stripStyleImport,
+        utils.stripPolyfills,
+        utils.optimizeClassNames,
+        utils.optimizeRender
+      ]);
 
       if (utils.isJSX(args.path)) {
         const runtime = utils.resolveRuntime(args.path);
 
         return {
-          contents: `import{createScopedElement}from"${runtime}";${code}`,
+          contents: `import { h, Fragment } from "${runtime}";\r\n${code}`,
           loader: 'tsx'
         };
       }
@@ -31,14 +37,14 @@ const createConfig = (entryPoints, platform) => ({
   write: false,
   outdir: platform === 'node' ? './dist/node/' : './dist/',
   format: platform === 'node' ? 'cjs' : 'esm',
-  target: platform === 'node' ? 'node12' : 'es2017',
+  target: platform === 'node' ? 'node12' : 'es2018',
   platform: platform === 'node' ? 'node' : 'neutral',
   sourcemap: 'external',
-  resolveExtensions: ['.tsx', '.ts', '.js'],
+  resolveExtensions: ['.tsx', '.jsx', '.ts', '.js'],
   minifySyntax: true,
   minifyWhitespace: true,
-  jsxFactory: 'createScopedElement',
-  jsxFragment: 'createScopedElement.Fragment',
+  jsxFactory: 'h',
+  jsxFragment: 'React.Fragment',
   plugins: [
     buildPlugin()
   ]
