@@ -89,7 +89,7 @@ let _next = null;
 let _props = null;
 export function h() {
   _props = arguments[1];
-  if (props !== null && _prop in _props) {
+  if (_props !== null && _prop in _props) {
     _class = _props.className;
     _prefixed = _prefix(_props[_prop]);
     _props.className =
