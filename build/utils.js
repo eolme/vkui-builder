@@ -56,7 +56,7 @@ const stripRelativeNodeModules = (text) => {
 };
 
 const markPure = (text) => {
-  return text.replace(/(?:console\.(?:log|warn|error)|warn|warnOnce)\(/g, '/*#__PURE__*/$&');
+  return text.replace(/(?:console\.(?:log|warn|error)|warn|warnOnce)\(/g, '/*@__PURE__*/$&');
 };
 
 const optimizeClassNames = (text) => {
@@ -80,7 +80,7 @@ const optimizeRender = (text) => {
 ${text}
 
 const _uppercase = /(^|\\s)([A-Z])/g;
-const _prefix = (str) => str.replace(uppercase, '$1vkui$2');
+const _prefix = (str) => str.replace(_uppercase, '$1vkui$2');
 const _prop = 'vkuiClass';
 let _prefixed = '';
 let _name = '';

@@ -11,7 +11,8 @@ const buildPlugin = () => ({
         utils.stripStyleImport,
         utils.stripPolyfills,
         utils.optimizeClassNames,
-        utils.optimizeRender
+        utils.optimizeRender,
+        utils.markPure
       ]);
 
       if (utils.isJSX(args.path)) {
@@ -31,20 +32,27 @@ const buildPlugin = () => ({
   }
 });
 
+/**
+ * @returns {import('esbuild').BuildOptions}
+ */
 const createConfig = (entryPoints, platform) => ({
   entryPoints,
-  bundle: false,
   write: false,
+  minify: false,
+  bundle: false,
+  splitting: false,
+  treeShaking: false,
   outdir: platform === 'node' ? './dist/node/' : './dist/',
   format: platform === 'node' ? 'cjs' : 'esm',
   target: platform === 'node' ? 'node12' : 'es2018',
   platform: platform === 'node' ? 'node' : 'neutral',
   sourcemap: 'external',
   resolveExtensions: ['.tsx', '.jsx', '.ts', '.js'],
-  minifySyntax: true,
-  minifyWhitespace: true,
+  jsx: 'transform',
   jsxFactory: 'h',
-  jsxFragment: 'React.Fragment',
+  jsxFragment: 'Fragment',
+  legalComments: 'inline',
+  ignoreAnnotations: false,
   plugins: [
     buildPlugin()
   ]
@@ -54,11 +62,7 @@ const build = async (entryPoints, platform) => {
   const result = await esbuild.build(createConfig(entryPoints, platform));
 
   return Promise.all(
-    result.outputFiles.map(async (file) => {
-      const pure = utils.markPure(file.text);
-
-      return utils.output(file.path, pure);
-    })
+    result.outputFiles.map(async (file) => utils.output(file.path, file.text))
   );
 };
 
