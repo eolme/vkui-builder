@@ -110,6 +110,41 @@ export const Fragment = React.Fragment;
 `;
 };
 
+const optimizeEnumValues = (text) => {
+  let last = 0;
+
+  return text.replace(/("|')?(\w+)\1?(?:\s*=\s*)?([^\n,]+?)?(,|\n|$)/g, (_, quote, name, value, next) => {
+    quote = quote || '"';
+    value = value ? value.trim() : false;
+
+    if (!value) {
+      // Plain
+      value = last;
+      last += 1;
+
+      return `${quote}${name}${quote}: ${value},${value}: ${quote}${name}${quote}${next}`;
+    }
+
+    if (/\d+/.test(value)) {
+      // Numbers
+      last = Number.parseInt(value, 10) + 1;
+
+      return `${quote}${name}${quote}: ${value},${value}: ${quote}${name}${quote}${next}`;
+    }
+
+    // Strings
+    return `${quote}${name}${quote}: ${value}${next}`;
+  });
+};
+
+const optimizeEnum = (text) => {
+  if (!text.includes('enum')) {
+    return text;
+  }
+
+  return text.replace(/(?:const\s+)?enum\s+(\w+)\s*{([\S\s]+?)}/gm, (_, name, values) => `const ${name} = {${optimizeEnumValues(values)}} as const;`);
+};
+
 const syncPromise = () => {
   let resolve;
   let reject;
@@ -162,6 +197,12 @@ const chain = (start, callbacks) => {
   return start;
 };
 
+const concatStyles = async () => {
+  return fs.writeFile(path.resolve(
+    process.cwd(), 'src', 'styles', 'vkui.css'
+  ), `@import "../fonts/fonts.css";@import "./themes.css";@import "./components.css";`, { encoding: 'utf8' });
+};
+
 module.exports = {
   BLANK,
   chain,
@@ -177,6 +218,8 @@ module.exports = {
   stripPolyfills,
   optimizeClassNames,
   optimizeRender,
+  optimizeEnum,
+  concatStyles,
   markPure,
   syncPromise
 };

@@ -3,35 +3,15 @@ const esbuild = require('esbuild');
 const utils = require('./utils');
 const path = require('path');
 
-const importPlugin = require('postcss-import');
-const customPropertiesPlugin = require('postcss-custom-properties');
 const selectorPlugin = require('postcss-modules');
+const resolvePlugin = require('postcss-url');
 
 const plugins = require('./plugins');
 
-const selfPath = path.resolve(__dirname, '..');
-const selfNodeModules = path.join(selfPath, 'node_modules');
-
-const basePath = process.cwd();
-const baseNodeModules = path.join(basePath, 'node_modules');
-
-const resolveSelf = utils.createResolve(selfPath);
+const basePath = path.resolve(process.cwd());
 const resolveBase = utils.createResolve(basePath);
 
-const propertiesPaths = [
-  resolveSelf('@vkontakte/vkui-tokens/themes/vkBase/cssVars/declarations/onlyVariables.css'),
-  resolveBase('./src/styles/bright_light.css'),
-  resolveBase('./src/styles/constants.css'),
-  resolveBase('./src/styles/animations.css')
-];
-
-const importPaths = [
-  selfNodeModules,
-  baseNodeModules
-];
-
 const exceptPaths = [
-  resolveSelf('@vkontakte/vkui-tokens/themes/vkBase/cssVars/declarations/onlyVariables.css'),
   resolveBase('./src/styles/bright_light.css')
 ];
 
@@ -39,12 +19,11 @@ const postcssPlugin = () => ({
   name: 'postcssPlugin',
   setup(build) {
     const processor = postcss.default([
-      importPlugin({
-        addModulesDirectories: importPaths
-      }),
-      customPropertiesPlugin({
-        importFrom: propertiesPaths,
-        preserve: true
+      resolvePlugin({
+        url: 'copy',
+        basePath: path.resolve(basePath, 'src/fonts'),
+        assetsPath: path.resolve(basePath, 'dist/assets'),
+        useHash: true
       }),
       plugins.scopeRootPlugin({
         customPropRoot: '.vkui__root,.vkui__portal-root',
@@ -59,9 +38,16 @@ const postcssPlugin = () => ({
     ]);
 
     build.onLoad({ filter: /\.css$/ }, async (file) => {
-      const raw = await utils.input(file.path);
-      const pure = utils.stripRelativeNodeModules(raw);
-      const contents = await processor.process(pure, { from: file.path });
+      let raw = await utils.input(file.path);
+
+      // Hack
+      if (raw.includes('node_modules')) {
+        raw = utils.stripRelativeNodeModules(raw);
+
+        await utils.output(file.path, raw);
+      }
+
+      const contents = await processor.process(raw, { from: file.path });
 
       return {
         contents: contents.css,
@@ -75,12 +61,16 @@ const buildFromEntry = async (entryPoints) => {
   return esbuild.build({
     entryPoints,
     sourcemap: 'external',
-    bundle: true,
+    bundle: false,
     write: true,
     allowOverwrite: true,
     outdir: './dist/',
     assetNames: './assets/[name]',
-    resolveExtensions: ['.css'],
+    resolveExtensions: [
+      '.css',
+      '.woff',
+      '.woff2'
+    ],
     minify: true,
     loader: {
       '.woff': 'file',

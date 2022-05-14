@@ -4,12 +4,11 @@ const typescript = require('./typescript');
 const esbuild = require('./esbuild');
 
 const entry = async () => fg([
-  './src/**/*.{tsx,ts,js}'
+  './src/**/*.{tsx,ts,jsx,js}'
 ], {
   ignore: [
     './src/**/*.{e2e,test,spec,polyfill}.{tsx,ts,js}',
-    './src/**/__tests__/**/*',
-    './src/testing/**/*'
+    './src/**/{test,__tests__,testing}/**/*'
   ]
 });
 

@@ -12,6 +12,7 @@ const buildPlugin = () => ({
         utils.stripPolyfills,
         utils.optimizeClassNames,
         utils.optimizeRender,
+        utils.optimizeEnum,
         utils.markPure
       ]);
 
@@ -44,8 +45,8 @@ const createConfig = (entryPoints, platform) => ({
   treeShaking: false,
   outdir: platform === 'node' ? './dist/node/' : './dist/',
   format: platform === 'node' ? 'cjs' : 'esm',
-  target: platform === 'node' ? 'node12' : 'es2018',
-  platform: platform === 'node' ? 'node' : 'neutral',
+  target: ['node12', 'es2018'],
+  platform: 'neutral',
   sourcemap: 'external',
   resolveExtensions: ['.tsx', '.jsx', '.ts', '.js'],
   jsx: 'transform',

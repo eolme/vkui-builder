@@ -42,7 +42,7 @@ const rewrite = async () => {
   ];
 
   // Add additional module
-  pkg.dependencies.clsx = '^1.1.1';
+  pkg.dependencies.clsx = await matchLatestVersion('clsx', '1');
 
   pkg.peerDependencies = Object.assign({}, pkg.dependencies, pkg.peerDependencies);
   pkg.peerDependenciesMeta = {};
