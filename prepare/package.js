@@ -100,6 +100,7 @@ const rewrite = async () => {
 
   pkg.bin = utils.BLANK;
   pkg.scripts = utils.BLANK;
+  pkg.engines = utils.BLANK;
 
   pkg['size-limit'] = utils.BLANK;
   pkg['pre-commit'] = utils.BLANK;
