@@ -6,8 +6,7 @@ Enhanced component library builder.
 
 ## Differences
 
-- ES2018 for esm modules
-- node12 for cjs modules
+- ES2018/Node12 target
 - Unprefixed css
 - Minified source
 - Faster load
@@ -27,28 +26,9 @@ yarn add @mntm/vkui
 Importing styles:
 
 ```css
-@import '@mntm/vkui/dist/styles/themes.css';
-@import '@mntm/vkui/dist/styles/components.css';
-```
+@import '@mntm/vkui/dist/vkui.css';
 
-Individual CommonJS modules exported from `/dist/node`, for example:
-
-```js
-const Alert = require('@mntm/vkui/dist/node/components/Alert');
-```
-
-## Installation
-
-We recommend to use [yarn](https://classic.yarnpkg.com/en/docs/install/) for dependency management:
-
-```shell
-yarn add @mntm/vkui-builder
-```
-
-After installing you can build your version locally:
-
-```shell
-yarn run vkui-builder
+@import '@mntm/vkui/dist/components/Root/Root.css';
 ```
 
 ## License
