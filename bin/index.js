@@ -43,6 +43,6 @@ const run = async (modulePath) => {
 
   if (isCI) {
     console.log('CI/CD detected.');
-    cross.sync('yarn', ['publish', '--non-interactive', '--access=public'], { stdio: 'inherit' });
+    cross.sync('npm', ['publish', '--access=public'], { stdio: 'inherit' });
   }
 })();

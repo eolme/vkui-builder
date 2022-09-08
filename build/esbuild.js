@@ -36,15 +36,15 @@ const buildPlugin = () => ({
 /**
  * @returns {import('esbuild').BuildOptions}
  */
-const createConfig = (entryPoints, platform) => ({
+const createConfig = (entryPoints) => ({
   entryPoints,
   write: false,
   minify: false,
   bundle: false,
   splitting: false,
   treeShaking: false,
-  outdir: platform === 'node' ? './dist/node/' : './dist/',
-  format: platform === 'node' ? 'cjs' : 'esm',
+  outdir: './dist/',
+  format: 'esm',
   target: ['node12', 'es2018'],
   platform: 'neutral',
   sourcemap: 'external',
@@ -59,19 +59,12 @@ const createConfig = (entryPoints, platform) => ({
   ]
 });
 
-const build = async (entryPoints, platform) => {
-  const result = await esbuild.build(createConfig(entryPoints, platform));
+const buildFromEntry = async (entryPoints) => {
+  const result = await esbuild.build(createConfig(entryPoints));
 
   return Promise.all(
     result.outputFiles.map(async (file) => utils.output(file.path, file.text))
   );
-};
-
-const buildFromEntry = async (entryPoints) => {
-  return Promise.all([
-    build(entryPoints, 'browser'),
-    build(entryPoints, 'node')
-  ]);
 };
 
 module.exports = {

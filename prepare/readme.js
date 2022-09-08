@@ -14,7 +14,7 @@ Changelog: https://github.com/VKCOM/VKUI/releases
 const rewrite = async () => {
   const readmePath = path.resolve(process.cwd(), 'README.md');
 
-  await utils.output(readmePath, readme);
+  return utils.output(readmePath, readme);
 };
 
 module.exports = {

@@ -70,7 +70,7 @@ const emit = async (entryPoints) => {
   }).emit(undefined, (filePath, code) => {
     const pure = utils.stripStyleImport(code);
 
-    utils.outputAll(filePath, pure, pure).then(sync.resolve, sync.reject);
+    utils.output(filePath, pure, pure).then(sync.resolve, sync.reject);
   }, undefined, true);
 
   return sync.promise;

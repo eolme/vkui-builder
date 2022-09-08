@@ -1,6 +1,6 @@
-const utils = require('../build/utils');
-const path = require('path');
 const semver = require('semver');
+
+const utils = require('../build/utils');
 
 const readPackage = async (packagePath) => {
   return JSON.parse(await utils.input(packagePath));
@@ -14,11 +14,11 @@ const matchLatestVersion = async (dep, range) => {
   const major = range.split('||').map((version) => version.match(/\d+/)[0]);
   const max = `${Math.max.apply(Math, major)}.x.x`;
 
-  const output = await utils.spawn('yarn', ['info', dep, 'versions', '--json'], { encoding: 'utf8' });
+  const output = await utils.spawn('npm', ['info', dep, 'versions', '--json'], { encoding: 'utf8' });
   const info = JSON.parse(output);
 
-  for (let i = info.data.length; i--;) {
-    const version = info.data[i];
+  for (let i = info.length; i--;) {
+    const version = info[i];
 
     if (semver.satisfies(version, max)) {
       return `^${version}`;
@@ -29,7 +29,7 @@ const matchLatestVersion = async (dep, range) => {
 };
 
 const rewrite = async () => {
-  const packagePath = path.resolve(process.cwd(), 'package.json');
+  const packagePath = utils.resolveRemote('package.json');
 
   const pkg = await readPackage(packagePath);
 
@@ -59,8 +59,8 @@ const rewrite = async () => {
     })
   );
 
-  const cjs = './dist/node/index.js';
-  const esm = './dist/index.js';
+  const main = './dist/index.js';
+  const types = './dist/index.d.ts';
 
   // Remove high-priority
   pkg.browser = utils.BLANK;
@@ -82,17 +82,17 @@ const rewrite = async () => {
   pkg.imports = utils.BLANK;
   pkg.exports = utils.BLANK;
 
-  // Target node12
-  pkg.main = cjs;
-
-  // Target es2017
-  pkg.module = esm;
+  // Main
+  pkg.main = main;
+  pkg.module = main;
 
   // Ts
-  pkg.typings = './dist/index.d.ts';
+  pkg.typings = types;
 
   pkg.name = '@mntm/vkui';
   pkg.description += ' built with @mntm/vkui-builder';
+
+  pkg.repository = 'https://github.com/mntm-lib/vkui-builder';
 
   pkg.dependencies = utils.BLANK;
   pkg.devDependencies = utils.BLANK;
@@ -106,7 +106,7 @@ const rewrite = async () => {
   pkg['pre-commit'] = utils.BLANK;
   pkg['lint-staged'] = utils.BLANK;
 
-  await writePackage(packagePath, pkg);
+  return writePackage(packagePath, pkg);
 };
 
 module.exports = {

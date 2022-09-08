@@ -1,17 +1,19 @@
 const fg = require('fast-glob');
+
+const entry = async () => fg([
+  './src/vkui.css',
+  './src/components/**/*.css'
+]);
+
 const postcss = require('./postcss');
 const utils = require('./utils');
 
-const entry = async () => fg([
-  './src/**/*.css'
-]);
-
 const build = async () => {
-  await utils.concatStyles();
+  await utils.createStylesEntry();
 
   const entryPoints = await entry();
 
-  await postcss.buildFromEntry(entryPoints);
+  return postcss.buildFromEntry(entryPoints);
 };
 
 module.exports = {

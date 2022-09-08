@@ -1,4 +1,5 @@
-const fs = require('fs').promises;
+const fsSync = require('fs');
+const fs = fsSync.promises;
 const path = require('path');
 const cross = require('cross-spawn');
 const { Buffer } = require('buffer');
@@ -9,15 +10,6 @@ const fsCreatePrams = { recursive: true };
 const output = async (filePath, fileText) => {
   await fs.mkdir(path.dirname(filePath), fsCreatePrams);
   await fs.writeFile(filePath, fileText, fsParams);
-};
-
-const outputAll = async (filePath, esm, cjs) => {
-  const nodePath = filePath.replace('/dist/', '/dist/node/');
-
-  return Promise.all([
-    output(filePath, esm),
-    output(nodePath, cjs)
-  ]);
 };
 
 const input = async (filePath) => {
@@ -31,13 +23,8 @@ const resolveRuntime = (filePath) => {
   return relative.startsWith('.') ? relative : `./${relative}`;
 };
 
-const createResolve = (dir) => (name) => {
-  return require.resolve(name, {
-    paths: [
-      dir
-    ]
-  });
-};
+const resolveLocal = (file) => path.resolve(__dirname, '..', file);
+const resolveRemote = (file) => path.resolve(process.cwd(), file);
 
 const isJSX = (filePath) => {
   return path.extname(filePath).endsWith('x');
@@ -53,6 +40,10 @@ const stripPolyfills = (text) => {
 
 const stripRelativeNodeModules = (text) => {
   return text.replace(/(?:\.+\/+)+node_modules\/?/g, '');
+};
+
+const stripThemes = (text) => {
+  return text.replace(/@import\s["']\.\/(bright_light|space_gray|vkcom_light|vkcom_dark).+/g, '');
 };
 
 const markPure = (text) => {
@@ -180,6 +171,7 @@ const spawn = async (command, args, options) => {
   proc.on('error', sync.reject);
   proc.on('exit', (code, signal) => {
     if (code !== 0) {
+      console.error(command);
       sync.reject(new Error(signal || code));
     } else {
       sync.resolve(Buffer.concat(result, length).toString('utf8'));
@@ -197,10 +189,31 @@ const chain = (start, callbacks) => {
   return start;
 };
 
-const concatStyles = async () => {
-  return fs.writeFile(path.resolve(
-    process.cwd(), 'src', 'styles', 'vkui.css'
-  ), `@import "../fonts/fonts.css";@import "./themes.css";@import "./components.css";`, { encoding: 'utf8' });
+const createStylesEntry = async () => {
+  return fs.writeFile(
+    resolveRemote('src/vkui.css'),
+    `@import ${[
+      '"./fonts/fonts.css"',
+      '"./styles/themes.css"',
+      '"./styles/constants.css"',
+      '"./styles/animations.css"',
+      '"./styles/common.css"'
+    ].join(';@import')};`,
+    { encoding: 'utf8' }
+  );
+};
+
+const requireLocal = (from) => {
+  const full = require.resolve(from);
+  const to = resolveLocal(`local/${path.basename(full)}`);
+
+  // eslint-disable-next-line no-sync
+  fsSync.mkdirSync(path.dirname(to), { recursive: true });
+  // eslint-disable-next-line no-sync
+  fsSync.copyFileSync(full, to);
+
+  // eslint-disable-next-line global-require
+  return require(to);
 };
 
 module.exports = {
@@ -209,17 +222,19 @@ module.exports = {
   spawn,
   input,
   output,
-  outputAll,
   resolveRuntime,
-  createResolve,
+  resolveLocal,
+  resolveRemote,
   isJSX,
   stripStyleImport,
   stripRelativeNodeModules,
+  stripThemes,
   stripPolyfills,
   optimizeClassNames,
   optimizeRender,
   optimizeEnum,
-  concatStyles,
+  createStylesEntry,
   markPure,
-  syncPromise
+  syncPromise,
+  requireLocal
 };
