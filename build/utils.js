@@ -16,7 +16,7 @@ const input = async (filePath) => {
   return fs.readFile(filePath, fsParams);
 };
 
-const runtimePath = path.resolve(process.cwd(), './src/lib/jsxRuntime');
+const runtimePath = path.resolve(process.cwd(), './src/lib/jsxRuntime.js');
 const resolveRuntime = (filePath) => {
   const relative = path.relative(path.dirname(filePath), runtimePath);
 
@@ -48,6 +48,10 @@ const stripThemes = (text) => {
 
 const markPure = (text) => {
   return text.replace(/(?:console\.(?:log|warn|error)|warn|warnOnce)\(/g, '/*@__PURE__*/$&');
+};
+
+const markModules = (text) => {
+  return text.replace(/((?:import|export)[\S\s]+?["']\.[\w./\\-]+?)(["'];)/gm, '$1.js$2');
 };
 
 const optimizeClassNames = (text) => {
@@ -235,6 +239,7 @@ module.exports = {
   optimizeEnum,
   createStylesEntry,
   markPure,
+  markModules,
   syncPromise,
   requireLocal
 };

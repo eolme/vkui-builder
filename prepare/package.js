@@ -62,6 +62,8 @@ const rewrite = async () => {
   const main = './dist/index.js';
   const types = './dist/index.d.ts';
 
+  pkg.type = 'module';
+
   // Remove high-priority
   pkg.browser = utils.BLANK;
 

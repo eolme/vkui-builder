@@ -13,7 +13,8 @@ const buildPlugin = () => ({
         utils.optimizeClassNames,
         utils.optimizeRender,
         utils.optimizeEnum,
-        utils.markPure
+        utils.markPure,
+        utils.markModules
       ]);
 
       if (utils.isJSX(args.path)) {
