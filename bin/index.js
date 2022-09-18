@@ -28,7 +28,15 @@ const run = async (modulePath) => {
 };
 
 (async () => {
-  const dirPath = await git.fetchMaster();
+  const version = process.argv[2];
+
+  if (!version || !/v4\.\d+\.\d+/.test(version)) {
+    console.error('Invalid version:', JSON.stringify(version));
+    // eslint-disable-next-line unicorn/no-process-exit
+    process.exit(2);
+  }
+
+  const dirPath = await git.fetchVersion(process.argv[2]);
 
   process.chdir(dirPath);
 

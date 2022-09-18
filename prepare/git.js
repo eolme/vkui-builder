@@ -5,8 +5,8 @@ const unzip = require('extract-zip');
 const path = require('path');
 const os = require('os');
 
-const GIT_ENDPOINT = 'https://codeload.github.com/VKCOM/VKUI/zip/refs/heads/master';
-const GIT_NAME = 'VKUI-master';
+const archive = (version) => `VKUI-${version.slice(1)}`;
+const link = (version) => `https://codeload.github.com/VKCOM/VKUI/zip/refs/tags/${version}`;
 
 const unpackFile = async (filePath, dirPath) => {
   return unzip(filePath, { dir: dirPath });
@@ -31,15 +31,15 @@ const createTemp = async () => {
   return fs.mkdtemp(path.join(os.tmpdir(), 'vkui'));
 };
 
-const fetchMaster = async () => {
+const fetchVersion = async (version) => {
   const dirPath = await createTemp();
-  const filePath = await downloadFile(GIT_ENDPOINT, dirPath);
+  const filePath = await downloadFile(link(version), dirPath);
 
   await unpackFile(filePath, dirPath);
 
-  return path.resolve(dirPath, GIT_NAME);
+  return path.resolve(dirPath, archive(version));
 };
 
 module.exports = {
-  fetchMaster
+  fetchVersion
 };

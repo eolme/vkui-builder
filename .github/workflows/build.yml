@@ -18,6 +18,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@mntm'
       - run: npm ci
-      - run: npm run build
+      - run: npm run build ${{ github.event.client_payload.version }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
