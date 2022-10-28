@@ -1,13 +1,14 @@
 const semver = require('semver');
 
 const utils = require('../build/utils');
+const fs = require('../build/fs');
 
 const readPackage = async (packagePath) => {
-  return JSON.parse(await utils.input(packagePath));
+  return JSON.parse(await fs.read(packagePath));
 };
 
 const writePackage = async (packagePath, pkg) => {
-  return utils.output(packagePath, JSON.stringify(pkg));
+  return fs.write(packagePath, JSON.stringify(pkg));
 };
 
 const matchLatestVersion = async (dep, range) => {
@@ -49,6 +50,12 @@ const rewrite = async () => {
   await Promise.all(
     Object.keys(pkg.peerDependencies).map(async (dep) => {
       if (dep.includes('babel')) {
+        pkg.peerDependencies[dep] = utils.BLANK;
+
+        return;
+      }
+
+      if (dep.includes('@vkontakte/vkui-tokens')) {
         pkg.peerDependencies[dep] = utils.BLANK;
 
         return;
@@ -111,6 +118,4 @@ const rewrite = async () => {
   return writePackage(packagePath, pkg);
 };
 
-module.exports = {
-  rewrite
-};
+rewrite();

@@ -3,9 +3,9 @@ const child = require('child_process');
 const isCI = require('is-ci');
 const cross = require('cross-spawn');
 
-const js = require.resolve('./build-js');
-const css = require.resolve('./build-css');
-const info = require.resolve('./rewrite-info');
+const build = require.resolve('../build');
+const info = require.resolve('../prepare/info');
+const json = require.resolve('../prepare/json');
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -30,7 +30,7 @@ const run = async (modulePath) => {
 (async () => {
   const version = process.argv[2];
 
-  if (!version || !/v4\.\d+\.\d+/.test(version)) {
+  if (!version || !/v5\.\d+\.\d+\S*/.test(version)) {
     console.error('Invalid version:', JSON.stringify(version));
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit(2);
@@ -41,10 +41,9 @@ const run = async (modulePath) => {
   process.chdir(dirPath);
 
   await Promise.all([
-    run(js),
-    run(css),
+    run(build),
     run(info)
-  ]);
+  ]).then(async () => run(json));
 
   console.log('Success!');
   console.log('Result:', dirPath);

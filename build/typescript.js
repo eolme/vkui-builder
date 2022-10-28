@@ -1,15 +1,51 @@
 const tsc = require('typescript');
-const utils = require('./utils');
-const fs = require('fs').promises;
 const path = require('path');
 
-const emit = async (entryPoints) => {
+const constants = require('./const');
+const fs = require('./fs');
+
+/**
+ * - remove css imports
+ * - add extension to relative module imports
+ *
+ * @param {string} code
+ * @param {string} extension
+ * @returns {string}
+ */
+const modifyImports = (code, extension) => {
+  return code.replace(constants.regexImportRelative(), (_, declaration, quote, file) => {
+    if (file.endsWith('.css')) {
+      return '';
+    }
+
+    return `${declaration}${quote}${file.replace(constants.regexModuleExtension(), '')}${extension}${quote};`;
+  });
+};
+
+/**
+ * Replace extension
+ *
+ * @param {string} file
+ * @param {string} extension
+ * @returns {string}
+ */
+const modifyExtension = (file, extension) => {
+  return file.replace(constants.regexModuleExtension(), extension);
+};
+
+/**
+ * TS declarations
+ *
+ * @param {string[]} entryPoints
+ * @returns {Promise}
+ */
+const declarations = async (entryPoints) => {
   const typesPath = path.resolve(__dirname, '../node_modules/@types');
   const basePath = process.cwd();
   const configPath = path.resolve(basePath, 'tsconfig.json');
 
   try {
-    await fs.unlink(configPath);
+    await fs.native.unlink(configPath);
   } catch {
     // Suppress
   }
@@ -61,21 +97,22 @@ const emit = async (entryPoints) => {
     files: entryPoints
   }, tsc.sys, basePath);
 
-  const sync = utils.syncPromise();
+  const tasks = [];
 
   tsc.createProgram({
     options: config.options,
     rootNames: config.fileNames,
     configFileParsingDiagnostics: config.errors
-  }).emit(undefined, (filePath, code) => {
-    const pure = utils.stripStyleImport(code);
-
-    utils.output(filePath, pure, pure).then(sync.resolve, sync.reject);
+  }).emit(undefined, (file, code) => {
+    tasks.push(fs.multi(file, [
+      fs.dest(modifyExtension(file, '.d.ts'), modifyImports(code, '.js')),
+      fs.dest(modifyExtension(file, '.d.mts'), modifyImports(code, '.mjs'))
+    ]));
   }, undefined, true);
 
-  return sync.promise;
+  return Promise.all(tasks);
 };
 
 module.exports = {
-  emit
+  declarations
 };

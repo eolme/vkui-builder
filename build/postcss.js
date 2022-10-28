@@ -3,31 +3,20 @@ const esbuild = require('esbuild');
 const utils = require('./utils');
 
 const selectorPlugin = require('postcss-modules');
-const resolvePlugin = require('postcss-url');
 const importPlugin = require('postcss-import');
 
-const scopePlugin = utils.requireLocal(utils.resolveRemote('tasks/postcss-scope-root'));
 const restructurePlugin = utils.requireLocal(utils.resolveRemote('tasks/postcss-restructure-variable'));
 
 const postcssPlugin = () => ({
   name: 'postcssPlugin',
   setup(build) {
     const processor = postcss.default([
-      resolvePlugin({
-        url: 'copy',
-        basePath: utils.resolveRemote('src/fonts/'),
-        assetsPath: utils.resolveRemote('dist/assets/'),
-        useHash: true
-      }),
       importPlugin({
         filter: (file) => file.includes('@vkontakte/vkui-tokens'),
         addModulesDirectories: [
           utils.resolveLocal('node_modules'),
           utils.resolveRemote('node_modules')
         ]
-      }),
-      scopePlugin({
-        customPropRoot: '.vkui__root,.vkui__portal-root'
       }),
       restructurePlugin(
         [
@@ -80,15 +69,9 @@ const buildFromEntry = async (entryPoints) => {
     outdir: './dist/',
     assetNames: './assets/[name]',
     resolveExtensions: [
-      '.css',
-      '.woff',
-      '.woff2'
+      '.css'
     ],
     minify: true,
-    loader: {
-      '.woff': 'file',
-      '.woff2': 'file'
-    },
     plugins: [
       postcssPlugin()
     ]

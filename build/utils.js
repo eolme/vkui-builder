@@ -1,34 +1,11 @@
-const fsSync = require('fs');
-const fs = fsSync.promises;
 const path = require('path');
 const cross = require('cross-spawn');
 const { Buffer } = require('buffer');
 
-const fsParams = { encoding: 'utf8' };
-const fsCreatePrams = { recursive: true };
-
-const output = async (filePath, fileText) => {
-  await fs.mkdir(path.dirname(filePath), fsCreatePrams);
-  await fs.writeFile(filePath, fileText, fsParams);
-};
-
-const input = async (filePath) => {
-  return fs.readFile(filePath, fsParams);
-};
-
-const runtimePath = path.resolve(process.cwd(), './src/lib/jsxRuntime.js');
-const resolveRuntime = (filePath) => {
-  const relative = path.relative(path.dirname(filePath), runtimePath);
-
-  return relative.startsWith('.') ? relative : `./${relative}`;
-};
+const fs = require('./fs');
 
 const resolveLocal = (file) => path.resolve(__dirname, '..', file);
 const resolveRemote = (file) => path.resolve(process.cwd(), file);
-
-const isJSX = (filePath) => {
-  return path.extname(filePath).endsWith('x');
-};
 
 const stripStyleImport = (text) => {
   return text.replace(/^\s*import\s*["']\S+\.css["'];?$/gm, '');
@@ -42,18 +19,6 @@ const stripRelativeNodeModules = (text) => {
   return text.replace(/(?:\.+\/+)+node_modules\/?/g, '');
 };
 
-const stripThemes = (text) => {
-  return text.replace(/@import\s["']\.\/(bright_light|space_gray|vkcom_light|vkcom_dark).+/g, '');
-};
-
-const markPure = (text) => {
-  return text.replace(/(?:console\.(?:log|warn|error)|warn|warnOnce)\(/g, '/*@__PURE__*/$&');
-};
-
-const markModules = (text) => {
-  return text.replace(/((?:import|export)[\S\s]+?["']\.[\w./\\-]+?)(["'];)/gm, '$1.js$2');
-};
-
 const optimizeClassNames = (text) => {
   if (!text.includes('classNames')) {
     return text;
@@ -64,45 +29,6 @@ const optimizeClassNames = (text) => {
 
     return `import { default as ${$1}${multi} } from ${$3}clsx${$3}`;
   });
-};
-
-const optimizeRender = (text) => {
-  if (!text.includes('createScopedElement')) {
-    return text;
-  }
-
-  return `
-${text}
-
-const _uppercase = /(^|\\s)([A-Z])/g;
-const _prefix = (str) => str.replace(_uppercase, '$1vkui$2');
-const _prop = 'vkuiClass';
-let _prefixed = '';
-let _name = '';
-let _class = '';
-let _next = null;
-let _props = null;
-export function h() {
-  _props = arguments[1];
-  if (_props !== null && _prop in _props) {
-    _class = _props.className;
-    _prefixed = _prefix(_props[_prop]);
-    _props.className =
-      _class !== null && _class !== undefined ?
-      _prefixed + ' ' + _class :
-      _prefixed;
-    _next = {};
-    for (_name in _props) {
-      if (_name !== _prop) {
-        _next[_name] = _props[_name];
-      }
-    }
-    arguments[1] = _next;
-  }
-  return React.createElement.apply(null, arguments);
-}
-export const Fragment = React.Fragment;
-`;
 };
 
 const optimizeEnumValues = (text) => {
@@ -185,16 +111,8 @@ const spawn = async (command, args, options) => {
   return sync.promise;
 };
 
-const chain = (start, callbacks) => {
-  callbacks.forEach((fn) => {
-    start = fn(start);
-  });
-
-  return start;
-};
-
 const createStylesEntry = async () => {
-  return fs.writeFile(
+  return fs.write(
     resolveRemote('src/vkui.css'),
     `@import ${[
       '"./fonts/fonts.css"',
@@ -202,44 +120,20 @@ const createStylesEntry = async () => {
       '"./styles/constants.css"',
       '"./styles/animations.css"',
       '"./styles/common.css"'
-    ].join(';@import')};`,
-    { encoding: 'utf8' }
+    ].join(';@import')};`
   );
-};
-
-const requireLocal = (from) => {
-  const full = require.resolve(from);
-  const to = resolveLocal(`local/${path.basename(full)}`);
-
-  // eslint-disable-next-line no-sync
-  fsSync.mkdirSync(path.dirname(to), { recursive: true });
-  // eslint-disable-next-line no-sync
-  fsSync.copyFileSync(full, to);
-
-  // eslint-disable-next-line global-require
-  return require(to);
 };
 
 module.exports = {
   BLANK,
-  chain,
   spawn,
-  input,
-  output,
-  resolveRuntime,
   resolveLocal,
   resolveRemote,
-  isJSX,
   stripStyleImport,
   stripRelativeNodeModules,
-  stripThemes,
   stripPolyfills,
   optimizeClassNames,
-  optimizeRender,
   optimizeEnum,
   createStylesEntry,
-  markPure,
-  markModules,
-  syncPromise,
-  requireLocal
+  syncPromise
 };
