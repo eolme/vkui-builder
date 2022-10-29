@@ -23,6 +23,7 @@ const downloadFile = async (url, dirPath) => {
     file.on('finish', () => {
       resolve(filePath);
     });
+
     request.end();
   });
 };

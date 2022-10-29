@@ -13,12 +13,16 @@ const fs = require('./fs');
  * @returns {string}
  */
 const modifyImports = (code, extension) => {
-  return code.replace(constants.regexImportRelative(), (_, declaration, quote, file) => {
+  return code.replace(constants.regexECMAImport(), (original, declaration, quote, file) => {
+    if (!file.startsWith('.')) {
+      return original;
+    }
+
     if (file.endsWith('.css')) {
       return '';
     }
 
-    return `${declaration}${quote}${file.replace(constants.regexModuleExtension(), '')}${extension}${quote};`;
+    return `${declaration}${quote}${file.replace(constants.regexECMAModuleExtension(), '')}${extension}${quote};`;
   });
 };
 
@@ -30,7 +34,7 @@ const modifyImports = (code, extension) => {
  * @returns {string}
  */
 const modifyExtension = (file, extension) => {
-  return file.replace(constants.regexModuleExtension(), extension);
+  return file.replace(constants.regexECMAModuleExtension(), extension);
 };
 
 /**

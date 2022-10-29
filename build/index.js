@@ -1,5 +1,6 @@
 const fg = require('fast-glob');
 
+const patch = require('./patch');
 const typescript = require('./typescript');
 const modules = require('./modules');
 
@@ -13,6 +14,8 @@ const entry = async () => fg([
 });
 
 const build = async () => {
+  await patch.concatStyles();
+
   const entryPoints = await entry();
 
   return Promise.all([

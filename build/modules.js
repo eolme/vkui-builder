@@ -9,14 +9,17 @@ const constants = require('./const');
  * @param {string} code
  * @returns {string}
  */
-const modifyStyleClass = (code) => {
-  return code.replace(constants.regexStyleClass(), (original, dot, name, space) => {
-    if (name.startsWith('vkui')) {
-      return original;
-    }
+const modifyStyle = (code) => {
+  return code
+    .replace(constants.regexStyleClass(), (original, dot, name, space) => {
+      if (name.startsWith('vkui')) {
+        return original;
+      }
 
-    return `${dot}vkui${name}${space}`;
-  });
+      return `${dot}vkui${name}${space}`;
+    })
+    .replace(constants.regexGlobalPseudo(), '$1')
+    .replace(constants.regexRootPseudo(), '.vkui');
 };
 
 /**
@@ -44,16 +47,33 @@ const collectStyleClass = (code) => {
  * @returns {string}
  */
 const modifyImports = (code, extension) => {
-  return code.replace(constants.regexImportRelative(), (_, declaration, quote, file) => {
+  return code.replace(constants.regexECMAImport(), (original, declaration, quote, file) => {
+    if (!file.startsWith('.')) {
+      return original;
+    }
+
     if (file.endsWith('.module.css')) {
-      return `${declaration}${quote}${file.replace(constants.regexStyleModule(), '.json')}${quote};`;
+      return `${declaration}${quote}${file.replace(constants.regexStyleModuleExtension(), '.json')}${quote};`;
     }
 
     if (file.endsWith('.css')) {
       return '';
     }
 
-    return `${declaration}${quote}${file.replace(constants.regexModuleExtension(), '')}${extension}${quote};`;
+    if (file.endsWith('classNames')) {
+      return `${declaration.replace(constants.regexImportNames(), (_, single, double) => {
+        single = single ? `default as ${single}` : '';
+        double = double ? `, default as ${double}` : '';
+
+        return `{ ${single}${double} }`;
+      })}${quote}clsx${quote};`;
+    }
+
+    if (file.endsWith('polyfills')) {
+      return '';
+    }
+
+    return `${declaration}${quote}${file.replace(constants.regexECMAModuleExtension(), '')}${extension}${quote};`;
   });
 };
 
@@ -65,7 +85,18 @@ const modifyImports = (code, extension) => {
  * @returns {string}
  */
 const modifyExtension = (file, extension) => {
-  return file.replace(constants.regexModuleExtension(), extension);
+  return file.replace(constants.regexECMAModuleExtension(), extension);
+};
+
+/**
+ * Module CSS to normal
+ *
+ * @param {string} file
+ * @param {string} extension
+ * @returns {string}
+ */
+const modifyModuleExtension = (file) => {
+  return file.replace(constants.regexStyleModuleExtension(), '.css');
 };
 
 /**
@@ -77,16 +108,24 @@ const pluginStyleModule = () => ({
   name: 'style-module',
   setup(build) {
     build.onLoad({
-      filter: constants.regexStyleModule()
+      filter: constants.regexStyleModuleExtension()
     }, async (args) =>
       fs.read(args.path).then(async (code) =>
         fs.single(
-          args.path.replace('/src/', '/dist/').replace(constants.regexStyleModule(), '.json'),
+          args.path.replace('/src/', '/dist/').replace(constants.regexStyleModuleExtension(), '.json'),
           collectStyleClass(code)
         ).then(() => ({
-          contents: modifyStyleClass(code),
+          contents: modifyStyle(code),
           loader: 'css'
         }))));
+
+    build.onLoad({
+      filter: constants.regexStyleExtension()
+    }, async (args) =>
+      fs.read(args.path).then(async (code) => ({
+        contents: modifyStyle(code),
+        loader: 'css'
+      })));
   }
 });
 
@@ -127,6 +166,10 @@ const compile = async (entryPoints) => {
   });
 
   return Promise.all(result.outputFiles.map(async (output) => {
+    if (output.path.endsWith('.css')) {
+      return fs.single(modifyModuleExtension(output.path), output.text);
+    }
+
     return fs.multi(output.path, [
       fs.dest(modifyExtension(output.path, '.js'), modifyImports(output.text, '.js')),
       fs.dest(modifyExtension(output.path, '.mjs'), modifyImports(output.text, '.mjs'))

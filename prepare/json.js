@@ -55,7 +55,7 @@ const rewrite = async () => {
         return;
       }
 
-      if (dep.includes('@vkontakte/vkui-tokens')) {
+      if (dep.includes('polyfill')) {
         pkg.peerDependencies[dep] = utils.BLANK;
 
         return;
@@ -66,8 +66,10 @@ const rewrite = async () => {
     })
   );
 
-  const main = './dist/index.js';
-  const types = './dist/index.d.ts';
+  const entryMain = './dist/index.js';
+  const entryModule = './dist/index.mjs';
+
+  const typesMain = './dist/index.d.ts';
 
   pkg.type = 'module';
 
@@ -92,11 +94,11 @@ const rewrite = async () => {
   pkg.exports = utils.BLANK;
 
   // Main
-  pkg.main = main;
-  pkg.module = main;
+  pkg.main = entryMain;
+  pkg.types = typesMain;
 
-  // Ts
-  pkg.typings = types;
+  // Module
+  pkg.module = entryModule;
 
   pkg.name = '@mntm/vkui';
   pkg.description += ' built with @mntm/vkui-builder';
