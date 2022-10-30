@@ -1,33 +1,20 @@
 const git = require('../prepare/git');
-const child = require('child_process');
 const isCI = require('is-ci');
 const cross = require('cross-spawn');
 
-const build = require.resolve('../build');
-const info = require.resolve('../prepare/info');
-const json = require.resolve('../prepare/json');
+const swc = require('../swc');
+const info = require('../prepare/info');
+const json = require('../prepare/json');
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log('Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
 });
 
-const run = async (modulePath) => {
-  return new Promise((resolve, reject) => {
-    const proc = child.fork(modulePath, { stdio: 'inherit' });
+(async function builder() {
+  console.log(builder.name);
+  console.time(builder.name);
 
-    proc.on('error', reject);
-    proc.on('exit', (code, signal) => {
-      if (code !== 0) {
-        reject(new Error(signal || code));
-      } else {
-        resolve();
-      }
-    });
-  });
-};
-
-(async () => {
   const version = process.argv[2];
 
   if (!version || !/v5\.\d+\.\d+\S*/.test(version)) {
@@ -40,16 +27,31 @@ const run = async (modulePath) => {
 
   process.chdir(dirPath);
 
+  await swc.prepare();
   await Promise.all([
-    run(build),
-    run(info)
-  ]).then(async () => run(json));
+    swc.build(),
+    swc.declarations()
+  ]);
+  await Promise.all([
+    info.rewriteInfo(),
+    json.rewritePackage(version)
+  ]);
+
+  console.timeEnd(builder.name);
 
   console.log('Success!');
   console.log('Result:', dirPath);
 
   if (isCI) {
     console.log('CI/CD detected.');
-    cross.sync('npm', ['publish', '--access=public'], { stdio: 'inherit' });
+
+    (function publish() {
+      console.log(publish.name);
+      console.time(publish.name);
+
+      cross.sync('npm', ['publish', '--access=public'], { stdio: 'inherit' });
+
+      console.timeEnd(publish.name);
+    })();
   }
 })();

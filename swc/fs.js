@@ -83,6 +83,7 @@ const rm = async (file) => native.rm(file, dirParams);
 
 module.exports = {
   native,
+  sync,
   path,
 
   rm,
