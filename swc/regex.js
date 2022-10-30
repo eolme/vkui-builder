@@ -23,7 +23,7 @@ const mediaPseudo = () =>
   /@media \((--[\w-]+)\)/g;
 
 const importNames = () =>
-  /{\s*(\w+)(?:,\s*(\w+))?\s*}/gm;
+  /{\s*(?:\w+\s+as\s+)?(\w+)(?:,\s*(?:\w+\s+as\s+)?(\w+))?\s*}/gm;
 
 const commonExports = () =>
   /(?:module\.)?exports\s*=\s*(\w+)?({[\S\s]+?})?\s*;?/gm;
