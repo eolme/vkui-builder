@@ -42,8 +42,8 @@ const build = async () => entryBuild().then(async (files) => {
     }
 
     return swc.transformFile(file, options.swc(file)).then(async (output) => {
-      const ecma = utils.isJS(file) ? transform.moduleImportsExports(output.code) : output.code;
-      const patched = patch.moduleImportsExports(ecma);
+      const transformed = utils.isJS(file) ? transform.moduleImportsExports(output.code) : output.code;
+      const patched = patch.moduleImportsExports(transformed);
 
       return fs.single(utils.TSXToJS(file), patched);
     });
@@ -76,7 +76,10 @@ const declarations = async () => entryDeclarations().then(async (files) => {
     rootNames: config.fileNames,
     configFileParsingDiagnostics: config.errors
   }).emit(undefined, (file, code) => {
-    tasks.push(fs.single(file, patch.declarations(code)));
+    const transformed = transform.constEnumToEnum(code);
+    const patched = patch.declarations(transformed);
+
+    tasks.push(fs.single(file, patched));
   }, undefined, true);
 
   return Promise.all(tasks).then(() => {

@@ -31,6 +31,9 @@ const commonExports = () =>
 const commonImports = () =>
   /(?:var|let|const)\s+(\w+|{[\S\s]+?})?\s*=\s*require\(([\S\s]+?)\)((?:\.\w+)+)?\s*;?/gm;
 
+const constEnum = () =>
+  /const\s+enum\s+/g;
+
 module.exports = {
   ECMAImportExport,
 
@@ -47,5 +50,7 @@ module.exports = {
   rootPseudo,
   mediaPseudo,
 
-  importNames
+  importNames,
+
+  constEnum
 };

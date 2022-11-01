@@ -50,8 +50,16 @@ const moduleImports = (code) => {
  */
 const moduleImportsExports = (code) => moduleExports(moduleImports(code));
 
+/**
+ * @param {string} code
+ * @returns {string}
+ */
+const constEnumToEnum = (code) => code.replace(regex.constEnum(), 'enum ');
+
 module.exports = {
   moduleExports,
   moduleImports,
-  moduleImportsExports
+  moduleImportsExports,
+
+  constEnumToEnum
 };
