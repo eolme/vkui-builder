@@ -64,7 +64,7 @@ const style = (code) => {
       return `${dot}vkui${name}${space}`;
     })
     .replace(regex.globalPseudo(), '$1')
-    .replace(regex.rootPseudo(), '.vkui')
+    .replace(regex.rootPseudo(), '.vkui__root,.vkui__portal-root')
     .replace(regex.mediaPseudo(), (original, pseudo) => {
       return `@media ${media()[pseudo]}`;
     });
