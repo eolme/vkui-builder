@@ -1,3 +1,5 @@
+const memo = require('memoizerific');
+
 const isCSS = (file) => file.endsWith('.css');
 const isModuleCSS = (file) => file.endsWith('.module.css');
 
@@ -16,6 +18,13 @@ const moduleCSSToCSS = (file) => dest(file).replace('.module.css', '.css');
 
 const random = (prefix) => `${prefix}${Math.random().toString(32).slice(2, 6)}`;
 
+/**
+ * @template T
+ * @param {T} fn
+ * @returns {T}
+ */
+const memoize = (fn) => memo(0)(fn);
+
 module.exports = {
   isCSS,
   isModuleCSS,
@@ -29,5 +38,7 @@ module.exports = {
   moduleCSSToJS,
   moduleCSSToCSS,
 
-  random
+  random,
+
+  memoize
 };

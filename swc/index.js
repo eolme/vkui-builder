@@ -43,7 +43,7 @@ const build = async () => entryBuild().then(async (files) => {
 
     return swc.transformFile(file, options.swc(file)).then(async (output) => {
       const transformed = utils.isJS(file) ? transform.moduleImportsExports(output.code) : output.code;
-      const patched = patch.moduleImportsExports(transformed);
+      const patched = patch.moduleImportsExports(file, transformed);
 
       return fs.single(utils.TSXToJS(file), patched);
     });
@@ -77,7 +77,7 @@ const declarations = async () => entryDeclarations().then(async (files) => {
     configFileParsingDiagnostics: config.errors
   }).emit(undefined, (file, code) => {
     const transformed = transform.constEnumToEnum(code);
-    const patched = patch.declarations(transformed);
+    const patched = patch.declarations(file, transformed);
 
     tasks.push(fs.single(file, patched));
   }, undefined, true);

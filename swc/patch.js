@@ -1,11 +1,15 @@
 const regex = require('./regex');
 const local = require('./local');
+const { createResolve } = require('./resolve');
 
 /**
+ * @param {string} from
  * @param {string} code
  * @returns {string}
  */
-const moduleImportsExports = (code) => {
+const moduleImportsExports = (from, code) => {
+  const resolve = createResolve(from);
+
   return code.replace(regex.ECMAImportExport(), (original, declaration, quote, file) => {
     if (!file.startsWith('.')) {
       return original;
@@ -32,7 +36,7 @@ const moduleImportsExports = (code) => {
       return '';
     }
 
-    return `${declaration}${quote}${file.replace(regex.ECMAModuleExtension(), '')}.js${quote};`;
+    return `${declaration}${quote}${resolve(file)}${quote};`;
   });
 };
 
@@ -71,11 +75,14 @@ const style = (code) => {
 };
 
 /**
+ * @param {string} from
  * @param {string} code
  * @param {string} extension
  * @returns {string}
  */
-const declarations = (code) => {
+const declarations = (from, code) => {
+  const resolve = createResolve(from);
+
   return code.replace(regex.ECMAImportExport(), (original, declaration, quote, file) => {
     if (!file.startsWith('.')) {
       return original;
@@ -89,7 +96,7 @@ const declarations = (code) => {
       return '';
     }
 
-    return `${declaration}${quote}${file.replace(regex.ECMAModuleExtension(), '')}.js${quote};`;
+    return `${declaration}${quote}${resolve(file)}${quote};`;
   });
 };
 
