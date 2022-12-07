@@ -10,7 +10,9 @@ const styleClass = (code) => {
   const classes = {};
 
   code.replace(regex.styleClass(), (original, dot, name) => {
-    classes[name] = `vkui${name}`;
+    if (name !== 'md') {
+      classes[name] = `vkui${name}`;
+    }
   });
 
   return `export default ${JSON.stringify(classes, null, 4)};`;
