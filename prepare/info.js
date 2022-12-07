@@ -1,5 +1,4 @@
-const utils = require('../build/utils');
-const path = require('path');
+const fs = require('../swc/fs');
 
 const readme = `# @mntm/vkui
 
@@ -11,12 +10,15 @@ Documentation: https://vkcom.github.io/VKUI/
 Changelog: https://github.com/VKCOM/VKUI/releases
 `;
 
-const rewrite = async () => {
-  const readmePath = path.resolve(process.cwd(), 'README.md');
+const rewriteInfo = async () => {
+  console.log(rewriteInfo.name);
+  console.time(rewriteInfo.name);
 
-  return utils.output(readmePath, readme);
+  return fs.write('README.md', readme).then(() => {
+    console.timeEnd(rewriteInfo.name);
+  });
 };
 
 module.exports = {
-  rewrite
+  rewriteInfo
 };

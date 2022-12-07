@@ -24,9 +24,10 @@
     "noEmit": true
   },
   "include": [
-    "bin/**/*",
-    "build/**/*",
-    "prepare/**/*"
+    "bin",
+    "build",
+    "prepare",
+    "swc"
   ],
   "exclude": [
     "node_modules"
