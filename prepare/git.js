@@ -42,7 +42,7 @@ const fetchVersion = async (version) => {
 
   console.timeEnd(fetchVersion.name);
 
-  return fs.path.resolve(dirPath, archive(version));
+  return fs.path.resolve(dirPath, archive(version), 'packages/vkui');
 };
 
 module.exports = {

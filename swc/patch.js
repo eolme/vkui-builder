@@ -45,7 +45,7 @@ const media = (() => {
 
   return () => {
     if (cached === null) {
-      const shared = local.require('shared.js');
+      const shared = local.require('shared.config.js');
 
       cached = shared.getCustomMedias().customMedia;
     }
