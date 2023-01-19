@@ -87,22 +87,43 @@ const declarations = async () => entryDeclarations().then(async (files) => {
   });
 });
 
-const prepare = async () => {
+const entryPrepare = async () => glob([
+  './src/styles/*.css'
+], {
+  ignore: [
+    './src/styles/{themes,components}.css'
+  ]
+});
+
+const entryPrepareRemove = async () => glob([
+  './src/styles/*.css'
+]);
+
+const prepare = async () => entryPrepare().then(async (files) => {
   console.log(prepare.name);
   console.time(prepare.name);
 
-  return Promise.all([
-    fs.read('./src/styles/constants.css'),
-    fs.read('./src/styles/common.css'),
-    fs.read('./src/styles/animations.css')
-  ]).then(async (contents) =>
-    Promise.all([
+  return Promise.all(files.map(async (file) => {
+    if (utils.isModuleCSS(file)) {
+      const code = await fs.read(file);
+      const collected = collect.styleClass(code);
+      const patched = patch.style(code);
+
+      await fs.single(utils.dest(utils.moduleCSSToJS(file)), collected);
+
+      return patched;
+    }
+
+    return fs.read(file);
+  })).then(async (contents) => {
+    return Promise.all([
       fs.single('./src/vkui.css', contents.join('\n')),
-      fs.rm('./src/styles')
-    ])).then(() => {
+      entryPrepareRemove().then(async (remove) => Promise.all(remove.map(async (file) => fs.rm(file))))
+    ]);
+  }).then(() => {
     console.timeEnd(prepare.name);
   });
-};
+});
 
 module.exports = {
   build,
